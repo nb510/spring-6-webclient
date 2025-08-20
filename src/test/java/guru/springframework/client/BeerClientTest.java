@@ -73,4 +73,35 @@ class BeerClientTest {
 
         await().untilTrue(isDone);
     }
+
+    @Test
+    void testUpdateBeer() {
+        AtomicBoolean isDone = new AtomicBoolean(false);
+
+        BeerDto newDto = BeerDto.builder()
+                .price(new BigDecimal("10.99"))
+                .beerName("Mango Bobs")
+                .beerStyle("IPA")
+                .quantityOnHand(500)
+                .upc("123245")
+                .build();
+
+        BeerDto updatedDto = BeerDto.builder()
+                .price(new BigDecimal("10.99"))
+                .beerName("$$$$$$$")
+                .beerStyle("IPA")
+                .quantityOnHand(500)
+                .upc("123245")
+                .build();
+
+        beerClient.createBeer(newDto)
+                .doOnNext(System.out::println)
+                .flatMap(beerDto -> beerClient.updateBeer(beerDto.getId(), updatedDto))
+                .subscribe(dto -> {
+                    System.out.println(dto);
+                    isDone.set(true);
+                });
+
+        await().untilTrue(isDone);
+    }
 }

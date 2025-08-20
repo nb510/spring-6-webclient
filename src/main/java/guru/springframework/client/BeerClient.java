@@ -48,4 +48,13 @@ public class BeerClient {
                 .map(path -> path.split("/")[path.split("/").length - 1])
                 .flatMap(this::getBeerById);
     }
+
+    public Mono<BeerDto> updateBeer(String beerId, BeerDto beerDto) {
+        return webClient.put()
+                .uri(path -> path.path(BEER_PATH_ID).build(beerId))
+                .body(Mono.just(beerDto), BeerDto.class)
+                .retrieve()
+                .toBodilessEntity()
+                .flatMap(voidResponseEntity -> getBeerById(beerId));
+    }
 }
