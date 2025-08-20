@@ -4,6 +4,7 @@ import guru.springframework.dto.BeerDto;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 public class BeerClient {
@@ -21,5 +22,12 @@ public class BeerClient {
                 .uri(path -> path.path(BEER_PATH).build())
                 .retrieve()
                 .bodyToFlux(BeerDto.class);
+    }
+
+    public Mono<BeerDto> getBeerById(String beerId) {
+        return webClient.get()
+                .uri(path -> path.path(BEER_PATH_ID).build(beerId))
+                .retrieve()
+                .bodyToMono(BeerDto.class);
     }
 }
