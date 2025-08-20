@@ -37,4 +37,15 @@ public class BeerClient {
                 .retrieve()
                 .bodyToFlux(BeerDto.class);
     }
+
+    public Mono<BeerDto> createBeer(BeerDto beerDto) {
+        return webClient.post()
+                .uri(path -> path.path(BEER_PATH).build())
+                .body(Mono.just(beerDto), BeerDto.class)
+                .retrieve()
+                .toBodilessEntity()
+                .map(voidResponseEntity -> voidResponseEntity.getHeaders().get("Location").get(0))
+                .map(path -> path.split("/")[path.split("/").length - 1])
+                .flatMap(this::getBeerById);
+    }
 }
