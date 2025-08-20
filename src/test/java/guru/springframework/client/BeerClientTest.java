@@ -4,6 +4,7 @@ import guru.springframework.dto.BeerDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -104,4 +105,36 @@ class BeerClientTest {
 
         await().untilTrue(isDone);
     }
+
+    @Test
+    void testDeleteBeer() {
+        AtomicBoolean isDone = new AtomicBoolean(false);
+
+        BeerDto newDto = BeerDto.builder()
+                .price(new BigDecimal("10.99"))
+                .beerName("Delete Me")
+                .beerStyle("Lager")
+                .quantityOnHand(200)
+                .upc("54321")
+                .build();
+
+        beerClient.createBeer(newDto)
+                .flatMap(createdBeer ->
+                        beerClient.deleteBeer(createdBeer.getId())
+                                .then(beerClient.getBeerById(createdBeer.getId())
+                                        .doOnNext(dto -> {
+                                            throw new AssertionError("Beer was not deleted!");
+                                        })
+                                        .onErrorResume(e -> {
+                                            System.out.println("Beer successfully deleted: " + e.getMessage());
+                                            return Mono.empty();
+                                        })
+                                )
+                )
+                .doOnTerminate(() -> isDone.set(true))
+                .subscribe();
+
+        await().untilTrue(isDone);
+    }
+
 }

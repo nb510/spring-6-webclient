@@ -57,4 +57,12 @@ public class BeerClient {
                 .toBodilessEntity()
                 .flatMap(voidResponseEntity -> getBeerById(beerId));
     }
+
+    public Mono<Void> deleteBeer(String beerId) {
+        return webClient.delete()
+                .uri(path -> path.path(BEER_PATH_ID).build(beerId))
+                .retrieve()
+                .toBodilessEntity()
+                .then();
+    }
 }
