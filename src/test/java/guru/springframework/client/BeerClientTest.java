@@ -39,4 +39,16 @@ class BeerClientTest {
 
         await().untilTrue(isDone);
     }
+
+    @Test
+    void testGetBeerByStyle() {
+        AtomicBoolean isDone = new AtomicBoolean(false);
+
+        beerClient.getBeerByStyle("Pale Ale").subscribe(dto -> {
+            System.out.println(dto);
+            isDone.set(true);
+        });
+
+        await().untilTrue(isDone);
+    }
 }

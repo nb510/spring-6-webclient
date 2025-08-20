@@ -30,4 +30,11 @@ public class BeerClient {
                 .retrieve()
                 .bodyToMono(BeerDto.class);
     }
+
+    public Flux<BeerDto> getBeerByStyle(String beerStyle) {
+        return webClient.get()
+                .uri(path -> path.path(BEER_PATH).queryParam("style", beerStyle).build())
+                .retrieve()
+                .bodyToFlux(BeerDto.class);
+    }
 }
