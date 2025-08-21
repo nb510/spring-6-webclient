@@ -21,10 +21,12 @@ class BeerClientTest {
     void testListBeers() throws InterruptedException {
         AtomicBoolean isDone = new AtomicBoolean(false);
 
-        beerClient.listBeer().subscribe(dto -> {
-            System.out.println(dto);
-            isDone.set(true);
-        });
+        beerClient.listBeer()
+                .doOnTerminate(() -> isDone.set(true))
+                .subscribe(dto -> {
+                    System.out.println(dto);
+                    isDone.set(true);
+                });
 
         await().untilTrue(isDone);
     }
@@ -35,6 +37,7 @@ class BeerClientTest {
 
         beerClient.listBeer()
                 .flatMap(beerDto -> beerClient.getBeerById(beerDto.getId()))
+                .doOnTerminate(() -> isDone.set(true))
                 .subscribe(dto -> {
                     System.out.println(dto.getBeerName());
                     isDone.set(true);
@@ -47,10 +50,12 @@ class BeerClientTest {
     void testGetBeerByStyle() {
         AtomicBoolean isDone = new AtomicBoolean(false);
 
-        beerClient.getBeerByStyle("Pale Ale").subscribe(dto -> {
-            System.out.println(dto);
-            isDone.set(true);
-        });
+        beerClient.getBeerByStyle("Pale Ale")
+                .doOnTerminate(() -> isDone.set(true))
+                .subscribe(dto -> {
+                    System.out.println(dto);
+                    isDone.set(true);
+                });
 
         await().untilTrue(isDone);
     }
@@ -67,10 +72,12 @@ class BeerClientTest {
                 .upc("123245")
                 .build();
 
-        beerClient.createBeer(newDto).subscribe(dto -> {
-            System.out.println(dto);
-            isDone.set(true);
-        });
+        beerClient.createBeer(newDto)
+                .doOnTerminate(() -> isDone.set(true))
+                .subscribe(dto -> {
+                    System.out.println(dto);
+                    isDone.set(true);
+                });
 
         await().untilTrue(isDone);
     }
@@ -98,6 +105,7 @@ class BeerClientTest {
         beerClient.createBeer(newDto)
                 .doOnNext(System.out::println)
                 .flatMap(beerDto -> beerClient.updateBeer(beerDto.getId(), updatedDto))
+                .doOnTerminate(() -> isDone.set(true))
                 .subscribe(dto -> {
                     System.out.println(dto);
                     isDone.set(true);
